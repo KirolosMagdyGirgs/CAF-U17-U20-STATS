@@ -26,7 +26,6 @@ import matplotlib.pyplot as plt
 from mplsoccer import Pitch, VerticalPitch
 import seaborn as sns
 from matplotlib.colors import LinearSegmentedColormap
-from matplotlib.colors import LinearSegmentedColormap
 import matplotlib.pyplot as plt
 import numpy as np
 from mplsoccer import Pitch
@@ -47,13 +46,14 @@ tab3, tab4 = st.tabs(["Player Total Stats", "Player Maps"])
 with tab3:
     st.subheader("📊 Player Total Stats")
 
+   
     # Maintain selections across reruns using session state
     if "league3" not in st.session_state:
         st.session_state["league3"] = "CAF U17"
     if "filter_applied3" not in st.session_state:
         st.session_state["filter_applied3"] = False
 
-    # Selectors inside tab
+    # Select league
     league = st.selectbox("Select League", ["CAF U17", "CAF U20"], key="league3")
 
     def load_data(league_name):
@@ -71,7 +71,9 @@ with tab3:
     if st.session_state.get("filter_applied3", False):
         df = st.session_state["df_stats"]
 
-        # Filter logic
+        # Rename for display
+        df = df.rename(columns={"shirt_number": "Shirt Number"})
+
         total_columns = [col for col in df.columns if 'p90' not in col and 'Percentile' not in col and col != 'Last Updated']
         percentile_columns = [col for col in df.columns if 'Percentile' in col and 'p90' not in col]
 
@@ -80,7 +82,7 @@ with tab3:
                 'index', 'Player Id', 'Full Name', 'Match Name', 'Team Name',
                 'Team Id', '90s', 'Most Played Position',
                 'Positions Played', 'Number of Positions Played',
-                'Position Group', 'position', 'Time Played',"shirt_number"
+                'Position Group', 'position', 'Time Played', "Shirt Number"
             ]
         ])
 
@@ -91,10 +93,10 @@ with tab3:
             if perc in percentile_columns:
                 ordered_cols.append(perc)
 
-        identifying_cols = ['Match Name', 'Team Name', 'Position Group', 'Time Played', '90s',"shirt_number"]
-        final_cols = identifying_cols + ordered_cols
-        full_df = df[final_cols].copy()
+        identifying_cols = ['Match Name', 'Team Name', 'Position Group', 'Time Played', '90s', "Shirt Number"]
+        full_df = df[identifying_cols + ordered_cols].copy()
 
+        # Filters
         position_groups = sorted(set(pos for sub in full_df['Position Group'].dropna().str.split(', ') for pos in sub))
         pos = st.selectbox("Select Position Group", position_groups, key="position3")
 
@@ -113,64 +115,60 @@ with tab3:
         available_stats = [col for col in ordered_cols if 'Percentile' not in col]
         selected_stats = st.multiselect("Select Stats to Display", available_stats, default=available_stats, key="stats3")
 
-        selected_cols = []
-        for stat in selected_stats:
-            selected_cols.append(stat)
-            perc = f"{stat} Percentile"
-            if perc in filtered_df.columns:
-                selected_cols.append(perc)
-
-        display_df = filtered_df[identifying_cols + selected_cols]
-
         negative_stats = [
-            'Minutes Per Goal', 'Aerial Duels lost', 'Aerial Duels lost p90', 'Dispossessed', 'Dispossessed p90', 
-            'Duels lost', 'Duels lost p90', 'Ground Duels lost', 'Ground Duels lost p90', 'Handballs conceded', 
-            'Hit Woodwork', 'Hit Woodwork p90', 'Offsides', 'Offsides p90', 'Overruns', 'Overruns p90', 
-            'Foul Attempted Tackle', 'Foul Attempted Tackle p90', 'GK Unsuccessful Distribution', 
-            'GK Unsuccessful Distribution p90', 'Goals Conceded', 'Goals Conceded p90', 
-            'Goals Conceded Outside Box', 'Goals Conceded Outside Box p90', 'Goals Conceded Inside Box', 
-            'Goals Conceded Inside Box p90', 'Own Goal Scored', 'Own Goal Scored p90', 
-            'Penalties Conceded', 'Penalties Conceded p90', 'Red Cards - 2nd Yellow', 'Red Cards - 2nd Yellow p90', 
-            'Straight Red Cards', 'Straight Red Cards p90', 'Total Red Cards', 'Total Red Cards p90', 
-            'Total Unsuccessful Passes ( Excl Crosses & Corners )', 
-            'Total Unsuccessful Passes ( Excl Crosses & Corners ) p90', 'Unsuccessful Corners into Box', 
-            'Unsuccessful Corners into Box p90', 'Unsuccessful Crosses & Corners', 
-            'Unsuccessful Crosses & Corners p90', 'Unsuccessful Crosses open play', 
-            'Unsuccessful Crosses open play p90', 'Unsuccessful Dribbles', 'Unsuccessful Dribbles p90', 
-            'Unsuccessful Launches', 'Unsuccessful Launches p90', 'Unsuccessful Long Passes', 
-            'Unsuccessful Long Passes p90', 'Unsuccessful Passes Opposition Half', 
-            'Unsuccessful Passes Opposition Half p90', 'Unsuccessful Passes Own Half', 
-            'Unsuccessful Passes Own Half p90', 'Unsuccessful Short Passes', 
-            'Unsuccessful Short Passes p90', 'Unsuccessful lay-offs', 'Unsuccessful lay-offs p90', 
-            'Yellow Cards', 'Yellow Cards p90', 'Substitute Off', 'Substitute Off p90', 
-            'Tackles Lost', 'Tackles Lost p90', 'Total Fouls Conceded', 'Total Fouls Conceded p90', 
-            'Total Losses Of Possession', 'Shots Off Target (inc woodwork)', 'Goals Conceded Inside Box p90','Goals Conceded Outside Box p90',
-            'Shots Off Target (inc woodwork) p90', 'Shots Per Goal', 'Shots Per Goal p90','Handballs conceded','Handballs conceded p90','Hit Woodwork p90','Hit Woodwork',
-            'Total Unsuccessful Passes ( Excl Crosses & Corners ) p90','Total Unsuccessful Passes ( Excl Crosses & Corners )'
+            'Minutes Per Goal', 'Aerial Duels lost', 'Dispossessed', 'Duels lost', 'Ground Duels lost',
+            'Handballs conceded', 'Hit Woodwork', 'Offsides', 'Overruns', 'Foul Attempted Tackle',
+            'GK Unsuccessful Distribution', 'Goals Conceded', 'Goals Conceded Outside Box',
+            'Goals Conceded Inside Box', 'Own Goal Scored', 'Penalties Conceded',
+            'Red Cards - 2nd Yellow', 'Straight Red Cards', 'Total Red Cards',
+            'Total Unsuccessful Passes ( Excl Crosses & Corners )',
+            'Unsuccessful Corners into Box', 'Unsuccessful Crosses & Corners',
+            'Unsuccessful Crosses open play', 'Unsuccessful Dribbles', 'Unsuccessful Launches',
+            'Unsuccessful Long Passes', 'Unsuccessful Passes Opposition Half',
+            'Unsuccessful Passes Own Half', 'Unsuccessful Short Passes', 'Unsuccessful lay-offs',
+            'Yellow Cards', 'Substitute Off', 'Tackles Lost', 'Total Fouls Conceded',
+            'Total Losses Of Possession', 'Shots Off Target (inc woodwork)', 'Shots Per Goal'
         ]
 
-        def apply_gradient(s, cmap_name='RdYlGn'):
+        # Prepare final display DataFrame and ranks
+        display_df = filtered_df[identifying_cols].copy()
+        for stat in selected_stats:
+            rank_col = f"{stat} Rank"
+            ascending = stat in negative_stats
+            display_df[stat] = filtered_df[stat]
+            display_df[rank_col] = filtered_df[stat].rank(ascending=ascending, method='min').astype("Int64")
+            perc = f"{stat} Percentile"
+            if perc in filtered_df.columns:
+                display_df[perc] = filtered_df[perc]
+
+        # Custom light gradient colormap from red to green
+        light_red_to_green = LinearSegmentedColormap.from_list("custom_redgreen", [
+            "#f25b5b",  # light red
+            "#f6f675",  # light yellow
+            "#1fff4c"   # light green
+        ])
+
+        def apply_custom_gradient(s):
             norm = mcolors.Normalize(vmin=s.min(), vmax=s.max())
-            cmap = plt.get_cmap(cmap_name)
+            cmap = light_red_to_green.reversed()  # So rank 1 is green, max rank is red
             return [f'background-color: {mcolors.to_hex(cmap(norm(val)))}' for val in s]
 
         if st.button("Show Total Stats", key="show_stats3"):
             styled_df = display_df.style
-            for col in display_df.columns:
-                if col in negative_stats:
-                    styled_df = styled_df.apply(apply_gradient, cmap_name='RdYlGn_r', subset=[col])
-                elif col in selected_cols:
-                    styled_df = styled_df.apply(apply_gradient, cmap_name='RdYlGn', subset=[col])
+            for stat in selected_stats:
+                rank_col = f"{stat} Rank"
+                if rank_col in display_df.columns:
+                    styled_df = styled_df.apply(apply_custom_gradient, subset=[rank_col])
             st.dataframe(styled_df, height=750)
 
             with st.expander("Metric Glossary"):
                 st.write("""- **Overrun**: Heavy touch in a dribble.
-- **Progressive Passes**: A pass that moves the ball closer to the opponent goal by 25% & at least 5 m vertically.
-- **Lay-off**: A pass by a striker who has received the ball with back to goal.
-- **Dispossessed**: Losing the ball under pressure.
-- **GK Distribution**: Successful goalkeeper passes.
-- **GK Launches**: Long balls launched forward.
-- **Other Goals**: Goals not scored with foot or head.""")
+    - **Progressive Passes**: A pass that moves the ball closer to the opponent goal by 25% & at least 5 m vertically.
+    - **Lay-off**: A pass by a striker who has received the ball with back to goal.
+    - **Dispossessed**: Losing the ball under pressure.
+    - **GK Distribution**: Successful goalkeeper passes.
+    - **GK Launches**: Long balls launched forward.
+    - **Other Goals**: Goals not scored with foot or head.""")
 
 # ------------------------- TAB 4 -------------------------
 with tab4:
@@ -349,8 +347,10 @@ with tab4:
         # Stats
         total = len(dribbles)
         successful = dribbles[dribbles['outcomeType/displayName'] == 'Successful']
-        dribbles_success_rate = round((len(successful) / len(dribbles)) * 100, 2)
-        #st.write(successful)
+        if len(dribbles) > 0:
+            dribbles_success_rate = round((len(successful) / len(dribbles)) * 100, 2)
+        else:
+            dribbles_success_rate = 0.0  # or None, or 'N/A' depending on your use case        #st.write(successful)
         #st.write(len(dribbles))
         # Title and stats text
         ax.text(2, pitch_width + 25, "DRIBBLES MAP", color='black', size=25,
@@ -360,13 +360,13 @@ with tab4:
         ax.text(2, pitch_width + 14, 'Dribble Outcome', fontsize=12,
                 ha='left', va='center', color='black', family='monospace')
         
-        ax.text(2, pitch_width + 6,
+        ax.text(2.2, pitch_width + 6,
                 f"{total} Attempted Dribbles",
                 color='black', size=14, ha='left', va='top',
                 family='monospace', weight='bold')
     
 
-        ax.text(30, pitch_width + 6,
+        ax.text(36, pitch_width + 6,
                 f"{dribbles_success_rate} % Dribbles Success %",
                 color='black', size=14, ha='left', va='top',
                 family='monospace', weight='bold')
@@ -522,6 +522,7 @@ with tab4:
 
         shots = shots.sort_values(["periodId", "minute", "second"]).reset_index(drop=True)
         shots["goal"] = shots["type/displayName"].apply(lambda x: "Goal" if x == "Goal" else "No Goal")
+        
 
         # --- Create vertical pitch (attacking half only) ---
         pitch = VerticalPitch(
@@ -543,7 +544,7 @@ with tab4:
         # --- Plot arrows for on-target shots ---
         for _, row in shots.iterrows():
             if row["type/displayName"] in ["Attempt saved", "Goal"] and not row.get("isBlocked", False):
-                x = (100 - row["y"]) * pitch.dim.pitch_width / 100
+                x = (100 - row["y"] )* pitch.dim.pitch_width / 100
                 y = row["x"] * pitch.dim.pitch_length / 100
                 goal_x = row["goalMouthY"] * pitch.dim.pitch_width / 100
                 goal_y = pitch.dim.pitch_length
@@ -555,8 +556,8 @@ with tab4:
         # --- Plot shots with shapes ---
         for goal_type, marker in {"Goal": "s", "No Goal": "o"}.items():
             subset = shots[shots["goal"] == goal_type]
-            x_vals = (100-subset["y"]) * pitch.dim.pitch_width / 100
-            y_vals = subset["x"] * pitch.dim.pitch_length / 100
+            x_vals = (100 - subset["y"]) * pitch.dim.pitch_width / 100
+            y_vals = (subset["x"]+2) * pitch.dim.pitch_length / 100
             ax.scatter(
                 x_vals, y_vals,
                 marker=marker,
@@ -575,9 +576,6 @@ with tab4:
             ((shots["type/displayName"] == "Attempt saved") & (shots["isBlocked"] == 0)) |
             (shots["type/displayName"] == "Goal")
         ])
-    
-
-        
 
         # --- Title and annotation ---
         ax.text(2, pitch.dim.pitch_length + 17, "SHOTS MAP", color="black", size=27,
@@ -585,21 +583,18 @@ with tab4:
         ax.text(2, pitch.dim.pitch_length + 13, f"{player_name} - {league}",
                 color="black", size=19, ha="left", va="top", family="monospace")
 
-        ### Stats
+        # --- Stats summary block ---
         ax.text(60, 78,
                 f"{total} Total Shots \n{on_target} On Target \n{goals} Goals ",
                 color="black", size=20, ha="left", va="top",
                 family="monospace")
-        
 
-        # On-target arrow key (legend marker)
+        # --- On-target arrow key (legend marker) ---
         ax.annotate(
             "", 
             xy=(34, 78), xytext=(34, 72),
             arrowprops=dict(arrowstyle="->", color="#00ff00", lw=4),
         )
-
-        # On-target text label
         ax.text(
             37, 75, "On target", 
             ha="left", va="center", color="black", fontsize=20, family="monospace"
@@ -616,12 +611,15 @@ with tab4:
             Line2D([0], [0], marker="o", color="w", label="No Goal",
                 markerfacecolor="#af1615", markeredgecolor="black", markersize=20)
         ]
-        ax.legend(handles=legend_elements,  bbox_to_anchor=(0.30, 0.33), #loc="lower center",
+        ax.legend(handles=legend_elements, bbox_to_anchor=(0.30, 0.33),
                 ncol=1, frameon=False, fontsize=17)
 
         ax.axis("off")
         return fig
 
+
+
+    
 
     ######################################## Defensive Actions Map ###############################################
     def create_defensive_actions_map(df, player_name, team_name):
@@ -911,4 +909,4 @@ with tab4:
                     
         
     else:
-        st.info("Select team and player, then click 'Apply Map'.")
+        st.info("Select competition, then click 'Apply Map'.")
