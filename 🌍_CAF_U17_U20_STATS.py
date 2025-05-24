@@ -156,7 +156,6 @@ with tab3:
 
         if st.button("Show Total Stats", key="show_stats3"):
             styled_df = display_df.style
-            styled_df = styled_df.set_properties(**{'color': 'white'})
             for col in display_df.columns:
                 if col in negative_stats:
                     styled_df = styled_df.apply(apply_gradient, cmap_name='RdYlGn_r', subset=[col])
