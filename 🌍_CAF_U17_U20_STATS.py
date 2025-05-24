@@ -30,9 +30,6 @@ from matplotlib.colors import LinearSegmentedColormap
 import matplotlib.pyplot as plt
 import numpy as np
 from mplsoccer import Pitch
-import rpy2.robjects as ro
-from rpy2.robjects.packages import importr
-from rpy2.robjects import r
 from matplotlib.patches import FancyArrowPatch
 from matplotlib.lines import Line2D
 from mplsoccer import VerticalPitch
