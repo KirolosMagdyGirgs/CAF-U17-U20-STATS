@@ -7,6 +7,7 @@ An interactive **Streamlit** web app designed for visualizing detailed match sta
 ## 🧰 Features
 
 - 🔎 Select any **player** and **team** from the competition.
+- 📋 **Full Competition Stats Table** for all players—ideal for scouting, analysis, and reporting.
 - 🗺️ Choose from a variety of interactive **visual pitch maps**:
   - ✅ **Passes Received Map**
   - ⚡ **Dribbles Map**
@@ -15,8 +16,7 @@ An interactive **Streamlit** web app designed for visualizing detailed match sta
   - 🛡️ **Defensive Actions Map**
   - 🥋 **Tackles Map**
   - 🧠 **Recoveries & Interceptions Map**
-- 📊 **Total Stats Summary** for the selected player across all their matches.
-- 📋 **Full Competition Stats Table** for all players—ideal for scouting, analysis, and reporting.
+
 
 ---
 
