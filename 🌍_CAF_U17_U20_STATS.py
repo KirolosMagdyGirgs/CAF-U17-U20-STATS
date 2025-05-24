@@ -545,7 +545,7 @@ with tab4:
         for _, row in shots.iterrows():
             if row["type/displayName"] in ["Attempt saved", "Goal"] and not row.get("isBlocked", False):
                 x = (100 - row["y"] )* pitch.dim.pitch_width / 100
-                y = row["x"] * pitch.dim.pitch_length / 100
+                y = (row["x"]+2) * pitch.dim.pitch_length / 100
                 goal_x = row["goalMouthY"] * pitch.dim.pitch_width / 100
                 goal_y = pitch.dim.pitch_length
                 ax.add_patch(FancyArrowPatch(
